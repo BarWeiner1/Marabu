@@ -1,3 +1,16 @@
+import { Socket, createServer, connect } from "net" 
+import canonicalize from 'canonicalize';
+
+const HelloMessage = {
+   "type": "hello", 
+    "version": "0.8.0", 
+    "agent": "Marabu-Core Client 0.8" 
+};
+
+const error = { "type": "error", "error": "Unsupported message type received" };
+
+const GetPeers = {"type": "getpeers"}
+
 // Include Nodejs' net module.
 const Net = require('net');
 // The port on which the server is listening.
@@ -23,7 +36,7 @@ server.on('connection', function(socket) {
 
     // The server can also receive data from the client by reading from its socket.
     socket.on('data', function(chunk) {
-        console.log(`Data received from client: ${chunk.toString()`.});
+        console.log('Data received from client: ${chunk.toString()');
     });
 
     // When the client requests to end the TCP connection with the server, the server
@@ -32,8 +45,4 @@ server.on('connection', function(socket) {
         console.log('Closing connection with the client');
     });
 
-    // Don't forget to catch error, for your own sake.
-    socket.on('error', function(err) {
-        console.log(`Error: ${err}`);
-    });
 });

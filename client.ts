@@ -14,7 +14,7 @@ client.connect({ port: port, host: host }), function() {
 
     // The client can now send data to the server by writing to its socket.
     client.write('Hello, server.');
-});
+};
 
 // The client can also receive data from the server by reading from its socket.
 client.on('data', function(chunk) {
