@@ -1,13 +1,21 @@
 //This is our server for Marabu
 
 import { Socket, createServer, connect } from "net" 
-import * as stringify from 'canonical-json'
+import canonicalize from 'canonicalize';
 
 
+const HelloMessage = {
+   "type": "hello", 
+    "version": "0.8.0", 
+    "agent": "Marabu-Core Client 0.8" 
+};
 
+const error = { "type": "error", "error": "Unsupported message type received" };
+
+const GetPeers = {"type": "getpeers"}
 
 const port = 18018
-const Net = require('net');
+const net = require('net');
 
 
 class Server {
@@ -29,13 +37,19 @@ class Client {
     private host: string
     private socket: Socket
 
-
-    constructor(host: string, port: number, socket?: socket) {
+    constructor(host: string, port: number, socket?: Socket) {
         this.host = host;
         this.port = port;
-
         this.socket = socket;
     }
+
+    handleMessage = {
+
+    }
+
+    
+
+
 
 }
 
