@@ -41,18 +41,13 @@ class Client {
         this.host = host;
         this.port = port;
         this.socket = socket;
+
+        this.socket.on('data', a => this.newMessage(a));
     }
-
-    handleMessage = {
-
-    }
-
-    
-
-
 
 }
 
+private newMessage(buffer: Buffer): void {
+    
 
-
-
+}
