@@ -2,6 +2,13 @@ import {Socket, connect} from "net"
 const Net = require('net');
 const port = 18018;
 
+type Connection = {
+    handshakeSuccess: boolean;
+    messageBuffer: string;
+}
+var connections: Map<string, Connection> = new Map();
+const router = require('./router');
+
 export default class peer{
     private socket: Socket
     private host: string
@@ -17,28 +24,38 @@ constructor(host: string, port: number, socket? : Socket){
     console.log('blockchain');
 
 }
+
     
 private fillBuffer(buffer: Buffer) {
+
+
     console.log('A new connection has been established.');
 
     // Now that a TCP connection has been established, the server can send data to
     // the client by writing to its socket.
-    this.socket.write('Hello, client.');
+    //this.socket.write('Hello, client.');
 
        // The server can also receive data from the client by reading from its socket.
-    this.socket.on('data', function(chunk: Buffer) {
-        console.log('Data received from client: ${chunk.toString()');
+    
+    // Now that a TCP connection has been established, the server can send data to
+    // the client by writing to its socket.
+    router.writeHello(this.socket);
+    connections.set(this.socket.remoteAddress + ":" + this.socket.remotePort, {
+        handshakeSuccess: false,
+        messageBuffer: "",
     });
-
-    // When the client requests to end the TCP connection with the server, the server
-    // ends the connection.
-    this.socket.on('end', function() {
-        console.log('Closing connection with the client');
+    this.socket.on('data', (chunk: Buffer) => {
+        router.handleData(this.socket, chunk, connections);
     });
-   
-     this.socket.on('error', function (err: String) {
-         console.log(`Error: ${err}`);
+    this.socket.on('end', () =>  {
+        // Remove connection from K:V store
+        connections.delete(this.socket.remoteAddress + ":" + this.socket.remotePort); 
+        console.log(`Connection with node ${this.socket.remoteAddress}:${this.socket.remotePort} ended`);
     });
+    this.socket.on('error', (err: String) => {
+        console.log(`Error: ${err}`);
+    });
+    
 
 
 }
