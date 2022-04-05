@@ -12,7 +12,7 @@ export default class peer{
 constructor(host: string, port: number, socket? : Socket){
     this.host = host
     this.port = port
-    this.socket = socket 
+    this.socket = socket || connect(this.port, this.host)
     this.socket.on('info', a => this.fillBuffer(a))
     console.log('blockchain');
 
@@ -46,7 +46,7 @@ private fillBuffer(buffer: Buffer) {
 
 }
 
-const client = new Net.Socket();
+/*const client = new Net.Socket();
 client.connect({ port: port, host: host }), function() {
     // If there is no error, the server has accepted the request and created a new 
     // socket dedicated to us.
@@ -66,6 +66,6 @@ client.on('data', function(address: string, port: number) {
 
 client.on('end', function() {
     console.log('Requested an end to the TCP connection');
-});
+});*/
 
 

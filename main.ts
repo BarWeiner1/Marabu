@@ -9,7 +9,7 @@ const port = 18018;
 
 
 // Create a new TCP server.
-const server = new Net.Server()
+const server =  createServer()//new Net.Server()
     
 
 
@@ -19,7 +19,7 @@ server.listen(port, function() {
 
 
 
-server.on('connection', function(socket : Socket) {
+server.on('connection', function(socket : Socket)  {
     console.log('A new connection has been established.');
 
     // Now that a TCP connection has been established, the server can send data to
@@ -27,7 +27,7 @@ server.on('connection', function(socket : Socket) {
     socket.write('Hello, client.');
    // console.log(`${socket}`);
     
-    console.log(`${socket.remoteAddress.toString()}`)
-    new peer(socket.remoteAddress, socket.remotePort, socket)
+    console.log(`${socket.remoteAddress as string}`)
+    new peer(socket.remoteAddress as string, socket.remotePort as number, socket)
     
 })
