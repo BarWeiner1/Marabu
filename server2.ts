@@ -1,26 +1,17 @@
 import { Socket, createServer, connect } from "net" 
 import canonicalize from 'canonicalize';
 
-const HelloMessage = {
-   "type": "hello", 
-    "version": "0.8.0", 
-    "agent": "Marabu-Core Client 0.8" 
-};
-
-const error = { "type": "error", "error": "Unsupported message type received" };
-
-const GetPeers = {"type": "getpeers"}
-
 // Include Nodejs' net module.
 const Net = require('net');
 // The port on which the server is listening.
 const port = 18018;
 
-// Use net.createServer() in your code. This is just for illustration purpose.
 // Create a new TCP server.
 const server = new Net.Server();
 // The server listens to a socket for a client to make a connection request.
 // Think of a socket as an end point.
+
+
 server.listen(port, function() {
     console.log(`Server listening for connection requests on socket localhost:${port}`);
 });
