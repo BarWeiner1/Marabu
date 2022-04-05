@@ -17,8 +17,8 @@ client.connect({ port: port, host: host }), function() {
 };
 
 // The client can also receive data from the server by reading from its socket.
-client.on('data', function(chunk) {
-    console.log(`Data received from the server: ${chunk.toString()}.`);
+client.on('data', function(address: string, port: number) {
+    console.log(`Data received from the server: ${port.toString()}.`);
     
     // Request an end to the connection after the data has been received.
     client.end();
@@ -27,3 +27,4 @@ client.on('data', function(chunk) {
 client.on('end', function() {
     console.log('Requested an end to the TCP connection');
 });
+
