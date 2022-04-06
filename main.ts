@@ -26,8 +26,8 @@ let extractIP = (fullIP: string): [string, number] => {
 
 let starter_nodes = [
     "149.28.220.241:18018",
-    "149.28.204.235:18018",
-    "139.162.130.195:18018"
+    /*"149.28.204.235:18018",
+    "139.162.130.195:18018"*/
 ]
 
 // Create a new TCP server.
@@ -64,7 +64,7 @@ let connectClient = (address: string, port: number): any => {
         router.sendMessages(client, [helloMsg, getPeersMsg])
     });
     client.on('data', function (chunk: any) {
-        router.handleMessage(client, chunk.toString(), connections)
+        router.handleData(client, chunk.toString(), connections)
     });
     client.on('end', function () {
         console.log('disconnected from server');

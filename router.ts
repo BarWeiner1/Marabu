@@ -1,4 +1,5 @@
 
+import canonicalize from 'canonicalize';
 const error = { "type": "error", "error": "Unsupported message type received" };
 
 const HelloMessage = {
@@ -84,3 +85,14 @@ export let handleData = (socket: any, chunk: Buffer, connections: any) => {
         }
     }    
 }
+
+//sendMessages will take any array of strings and send it out to the specified socket
+export let sendMessages = (socket : any, messages: any[]) => {
+    let sendOut = new String("");
+    for (let m in messages){
+        sendOut += canonicalize(m) + '\n';
+    }
+    console.log("sent out message:" + sendOut);
+    socket.write(sendOut);
+}
+

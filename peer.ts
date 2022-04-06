@@ -21,7 +21,6 @@ constructor(host: string, port: number, socket? : Socket){
     this.port = port
     this.socket = socket || connect(this.port, this.host)
     this.socket.on('info', a => this.fillBuffer(a))
-    console.log('blockchain');
 
 }
 
