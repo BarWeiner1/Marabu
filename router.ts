@@ -35,7 +35,7 @@ const HelloMessage = {
  };
 
  export let writeError = () => {
-    let errorString = JSON.stringify(error);
+    let errorString = error;
     return errorString;
 }
 
@@ -52,37 +52,48 @@ export let sendGetPeers = () => {
 export let handleData = async (socket: any, chunk: Buffer, connections: any) => {
     //console.log(`recievedData: ${chunk.toString()}`);
     // Decode message
+    //console.log("recieved 1 " + chunk.toString());
     let decodedChunk: any;
     try {
         decodedChunk = JSON.parse(chunk.toString());
     } catch (error) {
         
-        socket.write(writeError());
+        sendMessages(socket, [writeError()]);
         return
     }
 
-    console.log(decodedChunk);
-
-    if (decodedChunk.version != "0.8.0") {
-        socket.write(writeError());
-    }
+    // if (decodedChunk.version != "0.8.0") {
+    //     socket.write(writeError());
+    // }
 
     let remoteEndpoint: string = `${socket.remoteAddress}:${socket.remotePort}`
 
-    // Get connection from k:v store
-    
     let connectSet: Connection = {
         handshakeSuccess : false,
         messageBuffer : decodedChunk
     }
-    connections.set(remoteEndpoint, connectSet);
 
-    console.log(decodedChunk);
+    // Get connection from k:v store
+    console.log(connections + "print" + connectSet);
+     if (connections.get(remoteEndpoint) == undefined) {
+         
+        connectSet.handshakeSuccess = false;
+        connectSet.messageBuffer = decodedChunk;
 
-    // if (remoteEndpoint === undefined) {
-    //     socket.write((writeError()));
-    //     return
-    // }
+        connections.set(remoteEndpoint, connectSet);
+        console.log(connections + "print1" + connectSet);
+    }
+    else{
+
+        connectSet.messageBuffer += decodedChunk;
+
+        connections.set(remoteEndpoint, connectSet);
+
+    }
+
+    console.log("print2" + connectSet.messageBuffer);    
+
+   
     // if (!connections.handshakeSuccess && decodedChunk.type != "hello") {
        
     //     socket.write(writeError());
@@ -119,8 +130,12 @@ export let handleData = async (socket: any, chunk: Buffer, connections: any) => 
             //add to a database
             break;
         }
+        case "error": {
+            console.log("Got error message");
+            break;
+        }
         default: {
-            socket.write(writeError());
+            sendMessages(socket, [writeError()]);
             break;
         }
     }    
