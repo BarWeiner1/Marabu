@@ -1,4 +1,4 @@
-
+import level from 'level-ts';
 import canonicalize from 'canonicalize';
 const error = { "type": "error", "error": "Unsupported message type received" };
 
@@ -9,6 +9,22 @@ const HelloMessage = {
  };
 
  const GetPeers = {"type": "getpeers"}
+
+ const peers = new level('./database');
+
+ let starter_nodes = [
+    "149.28.220.241:18018",
+    /*"149.28.204.235:18018",
+    "139.162.130.195:18018"*/
+]
+
+ export let initialiseDB = async function (DB: any) {
+     if (!(await peers.exists("numPeers"))) {
+         console.log("RESET")
+         await peers.put("peers", JSON.stringify(starter_nodes));
+         await peers.put("numPeers", starter_nodes.length);
+     }
+ };
 
  export let writeError = () => {
     let errorString = JSON.stringify(error);
@@ -25,7 +41,7 @@ export let sendGetPeers = () => {
     return getPeersString;
 }
 
-export let handleData = (socket: any, chunk: Buffer, connections: any) => {
+export let handleData = async (socket: any, chunk: Buffer, connections: any) => {
     // Decode message
     let decodedChunk: any;
     try {
@@ -34,7 +50,6 @@ export let handleData = (socket: any, chunk: Buffer, connections: any) => {
         socket.write(writeError());
         return
     }
-
 
     if (decodedChunk.version != "0.8.0") {
         socket.write(writeError());
@@ -61,22 +76,22 @@ export let handleData = (socket: any, chunk: Buffer, connections: any) => {
             break;
         }
         case "getpeers": {
-        //     var index = await peersDB.get('numPeers');
-        //     var peersMessage = [];
-        //     for (var i = 0; i < index; i++) {
-        //         peersMessage[i] = await peersDB.get(i.toString());
-        //     }
-        //     sendMessages(socket, peersMessage);
-        //     break;
-        // }
-        // case "peers": {
-        //     var index = await peersDB.get('numPeers');
-        //     for (let peer of decodedChunk.peers) {
-        //         await peersDB.put(index, {value : peer});
-        //         index = index + 1;
-        //     }
-        //     await peersDB.put('numPeers', {value : index});
-        //     //add to a database
+            var index = await peers.get('numPeers');
+            var peersMessage = [];
+            for (var i = 0; i < index; i++) {
+                peersMessage[i] = await peers.get(i.toString());
+            }
+            sendMessages(socket, peersMessage);
+            break;
+        }
+        case "peers": {
+            var index = await peers.get('numPeers');
+            for (let peer of decodedChunk.peers) {
+                await peers.put(index, {value : peer});
+                index = index + 1;
+            }
+            await peers.put('numPeers', {value : index});
+            //add to a database
             break;
         }
         default: {
@@ -92,7 +107,7 @@ export let sendMessages = (socket : any, messages: any[]) => {
     for (let m in messages){
         sendOut += canonicalize(m) + '\n';
     }
-    console.log("sent out message:" + sendOut);
+    console.log("Sent out message:" + sendOut);
     socket.write(sendOut);
 }
 

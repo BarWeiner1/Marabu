@@ -1,13 +1,12 @@
 import { Socket, createServer, connect } from "net" 
 import canonicalize from 'canonicalize';
-import peer from './peer'
 
+import peer from './peer'
 
 const host = 'localhost';
 const Net = require('net');
 const port = 18018;
 const router = require('./router');
-
 
 let extractIP = (fullIP: string): [string, number] => {
     const regex: string = '((?::))(?:[0-9]+)$';
@@ -32,6 +31,7 @@ let starter_nodes = [
 
 // Create a new TCP server.
 const server =  createServer()//new Net.Server()
+router.initialiseDB();
     
 type Connection = {
     handshakeSuccess: boolean;
@@ -48,11 +48,10 @@ server.on('connection', function(socket : Socket)  {
     console.log('A new connection has been established.');
 
     //socket.write('Hello, client.');
-   // console.log(`${socket}`);
+    // console.log(`${socket}`);
     
     console.log(`${socket.remoteAddress as string}`)
     new peer(socket.remoteAddress as string, socket.remotePort as number, socket)
-    
 })
 
 let connectClient = (address: string, port: number): any => {

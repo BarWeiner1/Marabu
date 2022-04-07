@@ -1,13 +1,15 @@
 import {Socket, connect} from "net"
 const Net = require('net');
 const port = 18018;
+const router = require('./router');
 
 type Connection = {
     handshakeSuccess: boolean;
     messageBuffer: string;
 }
+
 var connections: Map<string, Connection> = new Map();
-const router = require('./router');
+
 
 export default class peer{
     private socket: Socket
@@ -29,12 +31,6 @@ private fillBuffer(buffer: Buffer) {
 
 
     console.log('A new connection has been established.');
-
-    // Now that a TCP connection has been established, the server can send data to
-    // the client by writing to its socket.
-    //this.socket.write('Hello, client.');
-
-       // The server can also receive data from the client by reading from its socket.
     
     // Now that a TCP connection has been established, the server can send data to
     // the client by writing to its socket.
