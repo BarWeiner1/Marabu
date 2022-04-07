@@ -24,6 +24,7 @@ let extractIP = (fullIP: string): [string, number] => {
 }
 
 let starter_nodes = [
+    "144.202.103.247:18018",
     "149.28.220.241:18018",
     /*"149.28.204.235:18018",
     "139.162.130.195:18018"*/
@@ -37,7 +38,9 @@ type Connection = {
     handshakeSuccess: boolean;
     messageBuffer: string;
 }
+
 var connections: Map<string, Connection> = new Map();
+
 
 server.listen(port, function() {
     console.log(`Server listening for connection requests on socket localhost:${port}`);

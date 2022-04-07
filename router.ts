@@ -1,11 +1,19 @@
 import level from 'level-ts';
 import canonicalize from 'canonicalize';
+import { createConnection } from 'net';
+import { type } from 'os';
+
+type Connection = {
+    handshakeSuccess: boolean;
+    messageBuffer: string;
+}
+
 const error = { "type": "error", "error": "Unsupported message type received" };
 
 const HelloMessage = {
     "type": "hello", 
      "version": "0.8.0", 
-     "agent": "Marabu-Core Client 0.8" 
+     "agent": "Albatross" 
  };
 
  const GetPeers = {"type": "getpeers"}
@@ -32,24 +40,28 @@ const HelloMessage = {
 }
 
 export let writeHello = () => {
-    let helloRaw = JSON.stringify(HelloMessage);
+    let helloRaw = HelloMessage;
     return helloRaw;
 }
 
 export let sendGetPeers = () => {
-    let getPeersString = JSON.stringify(GetPeers);
+    let getPeersString = GetPeers;
     return getPeersString;
 }
 
 export let handleData = async (socket: any, chunk: Buffer, connections: any) => {
+    //console.log(`recievedData: ${chunk.toString()}`);
     // Decode message
     let decodedChunk: any;
     try {
         decodedChunk = JSON.parse(chunk.toString());
     } catch (error) {
+        
         socket.write(writeError());
         return
     }
+
+    console.log(decodedChunk);
 
     if (decodedChunk.version != "0.8.0") {
         socket.write(writeError());
@@ -58,24 +70,36 @@ export let handleData = async (socket: any, chunk: Buffer, connections: any) => 
     let remoteEndpoint: string = `${socket.remoteAddress}:${socket.remotePort}`
 
     // Get connection from k:v store
-    var connection = connections.get(remoteEndpoint);
-    if (connection === undefined) {
-        socket.write(writeError());
-        return
-    }
     
-    if (!connection.handshakeSuccess && decodedChunk.type != "hello") {
-        socket.write(writeError());
+    let connectSet: Connection = {
+        handshakeSuccess : false,
+        messageBuffer : decodedChunk
     }
+    connections.set(remoteEndpoint, connectSet);
+
+    console.log(decodedChunk);
+
+    // if (remoteEndpoint === undefined) {
+    //     socket.write((writeError()));
+    //     return
+    // }
+    // if (!connections.handshakeSuccess && decodedChunk.type != "hello") {
+       
+    //     socket.write(writeError());
+    // }
 
     // Handle Data
     switch (decodedChunk.type) {
         case "hello": {
-            connection.handshakeSuccess = true;
-            connections.set(remoteEndpoint, connection);
+            
+            console.log("hello");
+            connectSet.handshakeSuccess = true;
+            connections.set(remoteEndpoint, connectSet);
+            
             break;
         }
         case "getpeers": {
+            console.log("getPeers");
             var index = await peers.get('numPeers');
             var peersMessage = [];
             for (var i = 0; i < index; i++) {
@@ -85,6 +109,7 @@ export let handleData = async (socket: any, chunk: Buffer, connections: any) => 
             break;
         }
         case "peers": {
+            console.log("peers");
             var index = await peers.get('numPeers');
             for (let peer of decodedChunk.peers) {
                 await peers.put(index, {value : peer});
@@ -104,10 +129,11 @@ export let handleData = async (socket: any, chunk: Buffer, connections: any) => 
 //sendMessages will take any array of strings and send it out to the specified socket
 export let sendMessages = (socket : any, messages: any[]) => {
     let sendOut = new String("");
-    for (let m in messages){
+    for (let m of messages){
         sendOut += canonicalize(m) + '\n';
     }
-    console.log("Sent out message:" + sendOut);
+    console.log("Sent out message:" + sendOut );
     socket.write(sendOut);
 }
+
 
